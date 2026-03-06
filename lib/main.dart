@@ -27,22 +27,50 @@ class _TaskUIScreenState extends State<TaskUIScreen> {
 
   int currentIndex = 0;
 
-  List<String> demoTasks = [
-    "Finish Flutter Task",
-    "Study Bloc vs Provider",
-    "Workout",
-    "Read 10 pages",
+  List<Map<String, dynamic>> demoTasks = [
+    {"title": "Finish Flutter Task", "done": false},
+    {"title": "Study Bloc vs Provider", "done": true},
+    {"title": "Workout", "done": false},
+    {"title": "Read 10 pages", "done": true},
   ];
 
   @override
   Widget build(BuildContext context) {
+
+    List<Map<String, dynamic>> filteredTasks = demoTasks.where((task) {
+
+      if (currentIndex == 0) {
+        return true;
+      }
+
+      if (currentIndex == 1) {
+        return task["done"] == true;
+      }
+
+      return task["done"] == false;
+
+    }).toList();
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
 
       appBar: AppBar(
-        title: const Text("Task Manager"),
+        elevation: 5,
         centerTitle: true,
         backgroundColor: Colors.deepPurple,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(20),
+          ),
+        ),
+        title: const Text(
+          "Task Manager",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
 
       body: Padding(
@@ -50,7 +78,6 @@ class _TaskUIScreenState extends State<TaskUIScreen> {
         child: Column(
           children: [
 
-            
             TextField(
               decoration: InputDecoration(
                 hintText: "Add a new task...",
@@ -66,37 +93,46 @@ class _TaskUIScreenState extends State<TaskUIScreen> {
 
             const SizedBox(height: 20),
 
-         
             Expanded(
               child: ListView.builder(
-                itemCount: demoTasks.length,
+                itemCount: filteredTasks.length,
                 itemBuilder: (context, index) {
+
+                  var task = filteredTasks[index];
+
                   return Card(
                     elevation: 3,
                     margin: const EdgeInsets.symmetric(vertical: 8),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
+
                     child: ListTile(
+
                       leading: Checkbox(
-                        value: index.isEven,
-                        onChanged: (value) {
-                          setState(() {});
-                        },
+                        value: task["done"],
+                        onChanged: null,
                         activeColor: Colors.deepPurple,
                       ),
+
                       title: Text(
-                        demoTasks[index],
+                        task["title"],
                         style: TextStyle(
                           fontSize: 16,
-                          decoration: index.isEven
+                          decoration: task["done"]
                               ? TextDecoration.lineThrough
                               : null,
                         ),
                       ),
-                      trailing: const Icon(
-                        Icons.delete,
-                        color: Colors.red,
+
+                      trailing: IconButton(
+                        icon: const Icon(
+                          Icons.delete,
+                          color: Colors.red,
+                        ),
+                        onPressed: () {
+               
+                        },
                       ),
                     ),
                   );
@@ -109,27 +145,37 @@ class _TaskUIScreenState extends State<TaskUIScreen> {
 
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.deepPurple,
-        onPressed: () {
-         
-        },
-        child: const Icon(Icons.add),
+        onPressed: () {},
+        child: const Icon(Icons.add, color: Colors.white,),
       ),
 
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
         selectedItemColor: Colors.deepPurple,
+
         onTap: (index) {
           setState(() {
             currentIndex = index;
           });
         },
+
         items: const [
+
           BottomNavigationBarItem(
-              icon: Icon(Icons.list), label: "All"),
+            icon: Icon(Icons.list),
+            label: "All",
+          ),
+
           BottomNavigationBarItem(
-              icon: Icon(Icons.check), label: "Completed"),
+            icon: Icon(Icons.check),
+            label: "Completed",
+          ),
+
           BottomNavigationBarItem(
-              icon: Icon(Icons.pending), label: "Pending"),
+            icon: Icon(Icons.pending),
+            label: "Pending",
+          ),
+
         ],
       ),
     );
