@@ -27,17 +27,14 @@ class _TaskUIScreenState extends State<TaskUIScreen> {
 
   int currentIndex = 0;
 
-  List<Map<String, dynamic>> demoTasks = [
-    {"title": "Finish Flutter Task", "done": false},
-    {"title": "Study Bloc vs Provider", "done": true},
-    {"title": "Workout", "done": false},
-    {"title": "Read 10 pages", "done": true},
-  ];
+  TextEditingController taskController = TextEditingController();
+
+  List<Map<String, dynamic>> tasks = [];
 
   @override
   Widget build(BuildContext context) {
 
-    List<Map<String, dynamic>> filteredTasks = demoTasks.where((task) {
+    List<Map<String, dynamic>> filteredTasks = tasks.where((task) {
 
       if (currentIndex == 0) {
         return true;
@@ -51,6 +48,8 @@ class _TaskUIScreenState extends State<TaskUIScreen> {
 
     }).toList();
 
+    int tasksCount = tasks.length;
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
 
@@ -63,9 +62,9 @@ class _TaskUIScreenState extends State<TaskUIScreen> {
             bottom: Radius.circular(20),
           ),
         ),
-        title: const Text(
-          "Task Manager",
-          style: TextStyle(
+        title: Text(
+          "Task Manager ($tasksCount)",
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -79,6 +78,7 @@ class _TaskUIScreenState extends State<TaskUIScreen> {
           children: [
 
             TextField(
+              controller: taskController,
               decoration: InputDecoration(
                 hintText: "Add a new task...",
                 prefixIcon: const Icon(Icons.task),
@@ -111,7 +111,11 @@ class _TaskUIScreenState extends State<TaskUIScreen> {
 
                       leading: Checkbox(
                         value: task["done"],
-                        onChanged: null,
+                        onChanged: (value) {
+                          setState(() {
+                            task["done"] = value;
+                          });
+                        },
                         activeColor: Colors.deepPurple,
                       ),
 
@@ -131,7 +135,11 @@ class _TaskUIScreenState extends State<TaskUIScreen> {
                           color: Colors.red,
                         ),
                         onPressed: () {
-               
+
+                          setState(() {
+                            tasks.remove(task);
+                          });
+
                         },
                       ),
                     ),
@@ -145,7 +153,24 @@ class _TaskUIScreenState extends State<TaskUIScreen> {
 
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.deepPurple,
-        onPressed: () {},
+        onPressed: () {
+
+          if (taskController.text.isNotEmpty) {
+
+            setState(() {
+
+              tasks.add({
+                "title": taskController.text,
+                "done": false
+              });
+
+              taskController.clear();
+
+            });
+
+          }
+
+        },
         child: const Icon(Icons.add, color: Colors.white,),
       ),
 
