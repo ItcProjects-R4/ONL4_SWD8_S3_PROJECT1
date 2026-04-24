@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'login_screen.dart';
+import 'home_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -10,8 +12,11 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passController = TextEditingController();
   final TextEditingController _confirmPassController = TextEditingController();
+  bool isLoading = false;
+  bool _isObscure = true;
 
   @override
   Widget build(BuildContext context) {
@@ -19,22 +24,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
       body: Stack(
         children: [
           Container(
-            height: double.infinity,
-            width: double.infinity,
+            height: double.infinity, width: double.infinity,
             decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('images/5.jpg'),
-                fit: BoxFit.cover,
-              ),
+              image: DecorationImage(image: AssetImage('images/5.jpg'), fit: BoxFit.cover),
             ),
           ),
           Container(
-            height: double.infinity,
-            width: double.infinity,
+            height: double.infinity, width: double.infinity,
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+                begin: Alignment.topCenter, end: Alignment.bottomCenter,
                 colors: [Colors.black12, Colors.black],
               ),
             ),
@@ -49,81 +48,43 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     children: [
                       const Icon(Icons.person_add_alt_1, size: 100, color: Colors.orange),
                       const SizedBox(height: 20),
-                      const Text(
-                        "إنشاء حساب",
-                        style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white),
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        "انضم إلينا وابدأ مغامرة الطهي",
-                        style: TextStyle(fontSize: 18, color: Colors.white70),
-                      ),
+                      const Text("إنشاء حساب", style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white)),
+                      const Text("انضم إلينا وابدأ مغامرة الطهي", style: TextStyle(fontSize: 18, color: Colors.white70)),
                       const SizedBox(height: 60),
                       TextFormField(
-                        style: const TextStyle(color: Colors.white),
-                        decoration: _buildInputDecoration("الاسم الكامل", Icons.person_outline),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'يرجى إدخال الاسم';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                      TextFormField(
+                        controller: _emailController,
                         style: const TextStyle(color: Colors.white),
                         decoration: _buildInputDecoration("البريد الإلكتروني", Icons.email_outlined),
-                        validator: (value) {
-                          if (value == null || !value.contains('@')) {
-                            return 'يرجى إدخال بريد إلكتروني صحيح';
-                          }
-                          return null;
-                        },
+                        validator: (value) => (value == null || !value.contains('@')) ? 'يرجى إدخال بريد إلكتروني صحيح' : null,
                       ),
                       const SizedBox(height: 20),
                       TextFormField(
                         controller: _passController,
-                        obscureText: true,
+                        obscureText: _isObscure,
                         style: const TextStyle(color: Colors.white),
-                        decoration: _buildInputDecoration("كلمة المرور", Icons.lock_outline),
-                        validator: (value) {
-                          if (value == null || value.length < 8) {
-                            return 'كلمة المرور يجب أن تكون 8 أحرف على الأقل';
-                          }
-                          return null;
-                        },
+                        decoration: _buildInputDecoration("كلمة المرور", Icons.lock_outline, isPassword: true),
+                        validator: (value) => (value != null && value.length < 8) ? 'كلمة المرور يجب أن تكون 8 أحرف على الأقل' : null,
                       ),
                       const SizedBox(height: 20),
                       TextFormField(
                         controller: _confirmPassController,
-                        obscureText: true,
+                        obscureText: _isObscure,
                         style: const TextStyle(color: Colors.white),
-                        decoration: _buildInputDecoration("تأكيد كلمة المرور", Icons.lock_reset),
-                        validator: (value) {
-                          if (value != _passController.text) {
-                            return 'كلمة المرور غير متطابقة';
-                          }
-                          return null;
-                        },
+                        decoration: _buildInputDecoration("تأكيد كلمة المرور", Icons.lock_reset, isPassword: true),
+                        validator: (value) => (value != _passController.text) ? 'كلمة المرور غير متطابقة' : null,
                       ),
                       const SizedBox(height: 40),
                       SizedBox(
-                        width: double.infinity,
-                        height: 60,
+                        width: double.infinity, height: 60,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.orange,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                           ),
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(builder: (context) => const LoginScreen()),
-                              );
-                            }
-                          },
-                          child: const Text("إنشاء الحساب", style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
+                          onPressed: isLoading ? null : _register,
+                          child: isLoading 
+                              ? const CircularProgressIndicator(color: Colors.white) 
+                              : const Text("إنشاء الحساب", style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
                         ),
                       ),
                       const SizedBox(height: 30),
@@ -132,9 +93,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         children: [
                           const Text("لديك حساب بالفعل؟", style: TextStyle(color: Colors.white70)),
                           TextButton(
-                            onPressed: () {
-                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
-                            },
+                            onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen())),
                             child: const Text("تسجيل الدخول", style: TextStyle(color: Colors.orange, fontSize: 16, fontWeight: FontWeight.bold)),
                           ),
                         ],
@@ -150,17 +109,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  InputDecoration _buildInputDecoration(String hint, IconData icon) {
+  Future<void> _register() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() => isLoading = true);
+      try {
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passController.text.trim(),
+        );
+        if (!mounted) return;
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+      } on FirebaseAuthException catch (e) {
+        String message = 'حدث خطأ ما';
+        if (e.code == 'email-already-in-use') message = 'هذا البريد مستخدم بالفعل';
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+      } finally {
+        setState(() => isLoading = false);
+      }
+    }
+  }
+
+  InputDecoration _buildInputDecoration(String hint, IconData icon, {bool isPassword = false}) {
     return InputDecoration(
-      filled: true,
-      fillColor: Colors.white12,
-      hintText: hint,
-      hintStyle: const TextStyle(color: Colors.white60),
+      filled: true, fillColor: Colors.white12,
+      hintText: hint, hintStyle: const TextStyle(color: Colors.white60),
       prefixIcon: Icon(icon, color: Colors.orange),
-      errorStyle: const TextStyle(color: Colors.redAccent),
+      suffixIcon: isPassword ? IconButton(
+        icon: Icon(_isObscure ? Icons.visibility : Icons.visibility_off, color: Colors.orange),
+        onPressed: () => setState(() => _isObscure = !_isObscure),
+      ) : null,
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: const BorderSide(color: Colors.orange)),
-      errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: const BorderSide(color: Colors.redAccent)),
     );
   }
 }
