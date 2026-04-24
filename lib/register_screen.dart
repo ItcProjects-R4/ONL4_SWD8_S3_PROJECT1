@@ -108,23 +108,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
   }
-
-  Future<void> _register() async {
+Future<void> _register() async {
     if (_formKey.currentState!.validate()) {
       setState(() => isLoading = true);
       try {
+        // استخدام FirebaseAuth مباشرة زي ما إنتِ عاملة في الكود
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passController.text.trim(),
         );
+        
         if (!mounted) return;
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("تم إنشاء الحساب بنجاح، يرجى تسجيل الدخول")),
+        );
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginScreen()));
+        
       } on FirebaseAuthException catch (e) {
         String message = 'حدث خطأ ما';
         if (e.code == 'email-already-in-use') message = 'هذا البريد مستخدم بالفعل';
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
       } finally {
-        setState(() => isLoading = false);
+        if (mounted) setState(() => isLoading = false);
       }
     }
   }
