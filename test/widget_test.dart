@@ -1,13 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:recipes/main.dart';
+import 'package:recipes/screens/onboarding_screen.dart';
+import 'package:recipes/screens/login_screen.dart';
 
 void main() {
-  testWidgets('App load test', (WidgetTester tester) async {
-   
-    await tester.pumpWidget(const MyApp(seenOnboarding: false, isLoggedIn: false));
+  testWidgets('App load test - Onboarding screen', (WidgetTester tester) async {
+    await tester.pumpWidget(const RecipeApp(seenOnboarding: false));
 
-   
-    expect(find.text('إنشاء حساب'), findsWidgets);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Welcome'), findsOneWidget);
+    expect(find.text('Get Started'), findsOneWidget);
+  });
+
+  testWidgets('App load test - Login screen after onboarding', (WidgetTester tester) async {
+    await tester.pumpWidget(const RecipeApp(seenOnboarding: true));
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Welcome Back 👋'), findsOneWidget);
+    expect(find.text('Login'), findsOneWidget);
+    expect(find.text('Sign Up'), findsOneWidget);
+  });
+
+  testWidgets('Login screen has email and password fields', (WidgetTester tester) async {
+    await tester.pumpWidget(const MaterialApp(
+      home: LoginScreen(),
+    ));
+
+    await tester.pumpAndSettle();
+
+    expect(find.byType(TextFormField), findsNWidgets(2));
+    expect(find.text('Login'), findsOneWidget);
+    expect(find.text('Forgot Password?'), findsOneWidget);
+  });
+
+  testWidgets('Onboarding screen has next button', (WidgetTester tester) async {
+    await tester.pumpWidget(const MaterialApp(
+      home: OnboardingScreen(),
+    ));
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Next'), findsOneWidget);
   });
 }
