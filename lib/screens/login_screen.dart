@@ -148,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                           child: const Text(
                             "Forgot Password?",
-                            style: TextStyle(color: Colors.orange),
+                            style: TextStyle(color: Color.fromARGB(255, 107, 60, 3)),
                           ),
                         ),
                       ),
@@ -157,7 +157,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         width: double.infinity,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.orange,
+                            backgroundColor: const Color.fromARGB(255, 83, 43, 2),
                             padding: const EdgeInsets.all(15),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15),
@@ -216,7 +216,7 @@ class _LoginScreenState extends State<LoginScreen> {
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color.fromARGB(192, 244, 239, 239)),
+        border: Border.all(color: const Color.fromARGB(223, 244, 239, 239)),
       ),
       child: TextFormField(
         controller: controller,
@@ -226,7 +226,7 @@ class _LoginScreenState extends State<LoginScreen> {
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: GoogleFonts.poppins(color: const Color.fromARGB(230, 255, 255, 255)),
-          prefixIcon: Icon(icon, color: const Color.fromARGB(70, 147, 70, 3)),
+          prefixIcon: Icon(icon, color: const Color.fromARGB(70, 208, 121, 45)),
           suffixIcon: isPassword
               ? IconButton(
                   icon: Icon(

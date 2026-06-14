@@ -17,21 +17,48 @@ class _ProfilePageState extends State<ProfilePage> {
   int weeklyLaunches = 0;
   String? lastLoginDate;
   String? memberSince;
+  String? lastActualLogin; // ده هيخزن تاريخ آخر تسجيل دخول حقيقي
 
   @override
   void initState() {
     super.initState();
     _loadStats();
     _getMemberSince();
+    _updateLastLogin(); // دالة جديدة لتحديث آخر تسجيل دخول
+  }
+
+  // دالة جديدة: تسجل وقت آخر تسجيل دخول كل ما المستخدم يفتح البروفايل
+  Future<void> _updateLastLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+    final now = DateTime.now();
+    final todayStr = "${now.day}/${now.month}/${now.year}";
+    
+    // نجيب آخر تسجيل دخول مسجل قبل كده
+    final savedLastLogin = prefs.getString('last_login_date');
+    
+    setState(() {
+      if (savedLastLogin != null) {
+        lastActualLogin = savedLastLogin;
+      } else {
+        lastActualLogin = todayStr; // أول مرة يسجل فيها
+      }
+    });
+    
+    // نحفظ التاريخ الحالي كآخر تسجيل دخول للمرة الجاية
+    await prefs.setString('last_login_date', todayStr);
   }
 
   Future<void> _loadStats() async {
     final prefs = await SharedPreferences.getInstance();
+    
+    // نجلب تاريخ آخر مرة فتح فيها التطبيق (مختلف عن تسجيل الدخول)
+    final lastLaunchStr = prefs.getString('last_launch_date');
+    
     setState(() {
       weeklyLaunches = prefs.getInt('weekly_launches') ?? 0;
-      final lastDateStr = prefs.getString('last_launch_date');
-      if (lastDateStr != null) {
-        final date = DateTime.parse(lastDateStr);
+      
+      if (lastLaunchStr != null) {
+        final date = DateTime.parse(lastLaunchStr);
         lastLoginDate = "${date.day}/${date.month}/${date.year}";
       } else {
         lastLoginDate = "اليوم";
@@ -46,8 +73,27 @@ class _ProfilePageState extends State<ProfilePage> {
         memberSince = "${date.day}/${date.month}/${date.year}";
       });
     } else {
+      // لو معندناش تاريخ من Firebase، نستخدم SharedPreferences
+      _getMemberSinceFromPrefs();
+    }
+  }
+
+  // دالة احتياطية لو Firebase مردش التاريخ
+  Future<void> _getMemberSinceFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedMemberSince = prefs.getString('member_since');
+    
+    if (savedMemberSince != null) {
       setState(() {
-        memberSince = "Nov 2024";
+        memberSince = savedMemberSince;
+      });
+    } else {
+      // لو أول مرة، نسجل التاريخ الحالي
+      final now = DateTime.now();
+      final todayStr = "${now.day}/${now.month}/${now.year}";
+      await prefs.setString('member_since', todayStr);
+      setState(() {
+        memberSince = todayStr;
       });
     }
   }
@@ -83,14 +129,20 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Column(
                   children: [
                     const SizedBox(height: 20),
+                    // هنا شلنا الصورة الثابتة وحطينا أيقونة ديناميكية
                     Container(
                       width: 100,
                       height: 100,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
+                        color: AppColors.secondary.withOpacity(0.3),
                         border: Border.all(color: Colors.white, width: 3),
                         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10, offset: const Offset(0, 5))],
-                        image: const DecorationImage(image: AssetImage('assets/images/sin (1).jpg'), fit: BoxFit.cover),
+                      ),
+                      child: Icon(
+                        Icons.person,
+                        size: 50,
+                        color: Colors.white,
                       ),
                     ),
                     const SizedBox(height: 15),
@@ -122,7 +174,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     const Divider(color: AppColors.cardBorder, height: 30),
                     _buildInfoRow(Icons.email_outlined, "Email", user?.email ?? "No Email"),
                     const SizedBox(height: 15),
-                    _buildInfoRow(Icons.calendar_today, "Last Login", lastLoginDate ?? "Unknown"),
+                    // هنا بنعرض آخر تسجيل دخول حقيقي مش ثابت
+                    _buildInfoRow(Icons.calendar_today, "Last Login", lastActualLogin ?? "Unknown"),
                     const SizedBox(height: 15),
                     _buildInfoRow(Icons.star, "Member Since", memberSince ?? "Loading..."),
                   ],
