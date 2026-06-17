@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth _auth;
+
+  AuthService({FirebaseAuth? auth}) : _auth = auth ?? FirebaseAuth.instance;
 
   Future<User?> registerWithEmail(String email, String pass) async {
     try {
@@ -9,12 +11,9 @@ class AuthService {
         email: email.trim(),
         password: pass.trim(),
       );
-
-      print("REGISTER SUCCESS: ${res.user?.email}");
       return res.user;
     } on FirebaseAuthException catch (e) {
-      print("REGISTER ERROR CODE: ${e.code}");
-      print("REGISTER ERROR MESSAGE: ${e.message}");
+      print("REGISTER ERROR: ${e.code}");
       return null;
     } catch (e) {
       print("UNKNOWN ERROR: $e");
@@ -28,12 +27,9 @@ class AuthService {
         email: email.trim(),
         password: pass.trim(),
       );
-
-      print("LOGIN SUCCESS: ${res.user?.email}");
       return res.user;
     } on FirebaseAuthException catch (e) {
-      print("LOGIN ERROR CODE: ${e.code}");
-      print("LOGIN ERROR MESSAGE: ${e.message}");
+      print("LOGIN ERROR: ${e.code}");
       return null;
     } catch (e) {
       print("UNKNOWN ERROR: $e");
@@ -44,4 +40,10 @@ class AuthService {
   Future<void> signOut() async {
     await _auth.signOut();
   }
+
+  Future<void> resetPassword(String email) async {
+    await _auth.sendPasswordResetEmail(email: email.trim());
+  }
+  
+  User? get currentUser => _auth.currentUser;
 }

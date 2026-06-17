@@ -5,6 +5,11 @@ import '../models/recipe_model.dart';
 class ApiService {
   static const String baseUrl = "https://www.themealdb.com/api/json/v1/1";
   
+  // ✅ خليه nullable عشان نقدر نعمل Mock
+  static http.Client? _client;
+  static set client(http.Client? value) => _client = value;
+  static http.Client get _httpClient => _client ?? http.Client();
+
   static Future<List<Recipe>> getRecipes(String query) async {
     if (query.isEmpty || query == "pasta" || query == "All") {
       return await getDiverseRecipes();
@@ -13,7 +18,7 @@ class ApiService {
     final url = Uri.parse("$baseUrl/search.php?s=$query");
     
     try {
-      final response = await http.get(url);
+      final response = await _httpClient.get(url);
       
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -29,12 +34,12 @@ class ApiService {
       return await getDiverseRecipes();
     }
   }
-  
+
   static Future<List<Recipe>> getRecipesByKeyword(String keyword) async {
     final url = Uri.parse("$baseUrl/search.php?s=$keyword");
     
     try {
-      final response = await http.get(url);
+      final response = await _httpClient.get(url);
       
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -49,7 +54,7 @@ class ApiService {
       return [];
     }
   }
-  
+
   static Future<List<Recipe>> getDiverseRecipes() async {
     List<Recipe> recipes = [];
     
@@ -62,7 +67,7 @@ class ApiService {
       final url = Uri.parse("$baseUrl/filter.php?c=$category");
       
       try {
-        final response = await http.get(url);
+        final response = await _httpClient.get(url);
         
         if (response.statusCode == 200) {
           final data = jsonDecode(response.body);
@@ -70,7 +75,7 @@ class ApiService {
           
           if (meals.isNotEmpty && meals[0] != null) {
             final detailUrl = Uri.parse("$baseUrl/lookup.php?i=${meals[0]['idMeal']}");
-            final detailResponse = await http.get(detailUrl);
+            final detailResponse = await _httpClient.get(detailUrl);
             
             if (detailResponse.statusCode == 200) {
               final detailData = jsonDecode(detailResponse.body);
@@ -87,12 +92,12 @@ class ApiService {
     
     return recipes;
   }
-  
+
   static Future<List<Recipe>> getRecipesByCategory(String category) async {
     final url = Uri.parse("$baseUrl/filter.php?c=$category");
     
     try {
-      final response = await http.get(url);
+      final response = await _httpClient.get(url);
       
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -103,7 +108,7 @@ class ApiService {
           final meal = meals[i];
           if (meal != null) {
             final detailUrl = Uri.parse("$baseUrl/lookup.php?i=${meal['idMeal']}");
-            final detailResponse = await http.get(detailUrl);
+            final detailResponse = await _httpClient.get(detailUrl);
             
             if (detailResponse.statusCode == 200) {
               final detailData = jsonDecode(detailResponse.body);
@@ -121,12 +126,12 @@ class ApiService {
       return [];
     }
   }
-  
+
   static Future<Recipe> getRecipeDetails(int id) async {
     final url = Uri.parse("$baseUrl/lookup.php?i=$id");
     
     try {
-      final response = await http.get(url);
+      final response = await _httpClient.get(url);
       
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
