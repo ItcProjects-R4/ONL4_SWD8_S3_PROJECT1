@@ -192,10 +192,8 @@ test/
 
 ## 🎥 Project Demonstration Video
 
-Video Link:
-
-(Add Google Drive / YouTube Link Here)
-
+- Long video: https://drive.google.com/file/d/1H03zZZitLuJhPOfYUBUWBOw64tWB-x2Q/view?usp=sharing
+- Short video: https://drive.google.com/file/d/1czcOgOpBQp5rtYwtc2JP_gejBHGacRzi/view?usp=sharing
 ---
 
 ## 🔗 GitHub Repository
