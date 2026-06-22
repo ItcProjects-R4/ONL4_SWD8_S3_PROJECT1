@@ -5,7 +5,7 @@ import '../models/recipe_model.dart';
 class ApiService {
   static const String baseUrl = "https://www.themealdb.com/api/json/v1/1";
   
-  // ✅ خليه nullable عشان نقدر نعمل Mock
+  
   static http.Client? _client;
   static set client(http.Client? value) => _client = value;
   static http.Client get _httpClient => _client ?? http.Client();

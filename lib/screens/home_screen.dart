@@ -25,10 +25,10 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Recipe> popularRecipes = [];
   List<Recipe> trendingRecipes = [];
   List<Recipe> quickMealsRecipes = [];
-  List<Recipe> filteredRecipes = []; // للوصفات المفلترة حسب الفئة
+  List<Recipe> filteredRecipes = []; 
   bool isLoading = true;
   bool isSearching = false;
-  String currentCategory = "All"; // عشان نتذكر الفئة الحالية
+  String currentCategory = "All"; 
   
   final TextEditingController searchCtrl = TextEditingController();
   Timer? _debounceTimer;
@@ -120,10 +120,9 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // دالة جديدة للفلترة حسب الفئة
   Future<void> _filterByCategory(String categoryName, String categoryQuery) async {
     if (categoryName == "All" || categoryQuery.isEmpty) {
-      // لو اختار "All" نرجع للشاشة الرئيسية كاملة
+      
       await _loadAllData();
       return;
     }
@@ -206,7 +205,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     _buildHeroSection(),
                     const SizedBox(height: 24),
 
-                    // Categories Section (من غير View All)
+                  
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Text(
@@ -271,9 +270,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
 
-                    // عرض محتوى مختلف حسب الفئة المختارة
+                    
                     if (selectedCategory == "All") ...[
-                      // لو في All: نعرض كل الأقسام
+                    
                       const SizedBox(height: 24),
                       
                       // Trending Now Section
@@ -304,7 +303,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       const SizedBox(height: 24),
 
-                      // 30 Min Meals Section
+                     
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: Text(
@@ -332,7 +331,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       const SizedBox(height: 24),
 
-                      // Popular Recipes Section
+                     
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: Text(
@@ -362,7 +361,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                       ),
                     ] else if (filteredRecipes.isNotEmpty) ...[
-                      // لو في فئة معينة: نعرض الوصفات المفلترة بس
+
                       const SizedBox(height: 24),
                       
                       Padding(
@@ -395,7 +394,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                       ),
                     ] else ...[
-                      // لو في فئة معينة ومفيش وصفات
+                      
                       const SizedBox(height: 100),
                       Center(
                         child: Column(

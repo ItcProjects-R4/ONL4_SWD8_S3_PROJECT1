@@ -44,6 +44,6 @@ class AuthService {
   Future<void> resetPassword(String email) async {
     await _auth.sendPasswordResetEmail(email: email.trim());
   }
-  
+
   User? get currentUser => _auth.currentUser;
 }

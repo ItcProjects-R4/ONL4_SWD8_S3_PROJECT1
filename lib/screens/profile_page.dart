@@ -17,41 +17,40 @@ class _ProfilePageState extends State<ProfilePage> {
   int weeklyLaunches = 0;
   String? lastLoginDate;
   String? memberSince;
-  String? lastActualLogin; // ده هيخزن تاريخ آخر تسجيل دخول حقيقي
+  String? lastActualLogin; 
 
   @override
   void initState() {
     super.initState();
     _loadStats();
     _getMemberSince();
-    _updateLastLogin(); // دالة جديدة لتحديث آخر تسجيل دخول
+    _updateLastLogin(); 
   }
 
-  // دالة جديدة: تسجل وقت آخر تسجيل دخول كل ما المستخدم يفتح البروفايل
+ 
   Future<void> _updateLastLogin() async {
     final prefs = await SharedPreferences.getInstance();
     final now = DateTime.now();
     final todayStr = "${now.day}/${now.month}/${now.year}";
     
-    // نجيب آخر تسجيل دخول مسجل قبل كده
+   
     final savedLastLogin = prefs.getString('last_login_date');
     
     setState(() {
       if (savedLastLogin != null) {
         lastActualLogin = savedLastLogin;
       } else {
-        lastActualLogin = todayStr; // أول مرة يسجل فيها
+        lastActualLogin = todayStr; 
       }
     });
     
-    // نحفظ التاريخ الحالي كآخر تسجيل دخول للمرة الجاية
+
     await prefs.setString('last_login_date', todayStr);
   }
 
   Future<void> _loadStats() async {
     final prefs = await SharedPreferences.getInstance();
     
-    // نجلب تاريخ آخر مرة فتح فيها التطبيق (مختلف عن تسجيل الدخول)
     final lastLaunchStr = prefs.getString('last_launch_date');
     
     setState(() {
@@ -73,12 +72,12 @@ class _ProfilePageState extends State<ProfilePage> {
         memberSince = "${date.day}/${date.month}/${date.year}";
       });
     } else {
-      // لو معندناش تاريخ من Firebase، نستخدم SharedPreferences
+      
       _getMemberSinceFromPrefs();
     }
   }
 
-  // دالة احتياطية لو Firebase مردش التاريخ
+  
   Future<void> _getMemberSinceFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     final savedMemberSince = prefs.getString('member_since');
@@ -88,7 +87,7 @@ class _ProfilePageState extends State<ProfilePage> {
         memberSince = savedMemberSince;
       });
     } else {
-      // لو أول مرة، نسجل التاريخ الحالي
+  
       final now = DateTime.now();
       final todayStr = "${now.day}/${now.month}/${now.year}";
       await prefs.setString('member_since', todayStr);
@@ -129,7 +128,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Column(
                   children: [
                     const SizedBox(height: 20),
-                    // هنا شلنا الصورة الثابتة وحطينا أيقونة ديناميكية
+                    
                     Container(
                       width: 100,
                       height: 100,
@@ -174,7 +173,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     const Divider(color: AppColors.cardBorder, height: 30),
                     _buildInfoRow(Icons.email_outlined, "Email", user?.email ?? "No Email"),
                     const SizedBox(height: 15),
-                    // هنا بنعرض آخر تسجيل دخول حقيقي مش ثابت
+                   
                     _buildInfoRow(Icons.calendar_today, "Last Login", lastActualLogin ?? "Unknown"),
                     const SizedBox(height: 15),
                     _buildInfoRow(Icons.star, "Member Since", memberSince ?? "Loading..."),
